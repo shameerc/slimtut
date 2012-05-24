@@ -10,7 +10,7 @@
 require 'Slim/Slim.php';
 
 include "NotORM.php";
-$dsn = 'mysql:dbname=slimtut;host=127.0.0.1';
+$dsn = 'mysql:dbname=library;host=127.0.0.1';
 $pdo = new PDO($dsn,'root','root');
 $db  = new NotORM($pdo);
 
@@ -24,40 +24,71 @@ $app = new Slim(
     );
 
 $app->get('/', function(){
-    echo "Hello world";
+    echo "Hello Slim World";
 });
-$app->post('/users',function() use($app,$db){
-    $user = array(
-            'name' => $_POST['name'],
-            'email' => $_POST['email'],
-            'age' => $_POST['age'],
+
+
+$app->post('/book',function() use($app,$db){
+    $app->response()->header('Content-Type', 'application/json');
+    $book = array(
+            'title' => $_POST['title'],
+            'author' => $_POST['author'],
+            'summary' => $_POST['summary'],
         );
-    $result = $db->users->insert($user);
+    $result = $db->books->insert($book);
     echo json_encode(array('id' => $result['id']));
 });
 
-$app->get('/users',function() use ($app,$db){
-   // $app->response()->header('Content-Type', 'application/json');
+
+
+$app->get('/books',function() use ($app,$db){
+    $app->response()->header('Content-Type', 'application/json');
     $users = array();
-    foreach ($db->users as $user) {
+    foreach ($db->books as $user) {
         $users[]  = array(
                 'id' => $user['id'],
-                'name' => $user['name'],
-                'email' => $user['email'],
-                'age' => $user['age']
+                'title' => $user['title'],
+                'author' => $user['author'],
+                'summary' => $user['summary']
             );
     }
     echo json_encode($users);
-    echo "<form action='' method='post'>
-            Name : <input type='text' name='name' /> </br>
-            Email : <input type='text' name='email' /> </br>
-            Age : <input type='text' name='age' /> </ br>
-            <input type='submit' name='submit' value='Submit' >
-        </form>";
+
 });
 
+$app->delete('/book/:id',function($id) use($app,$db){
+    $app->response()->header('Content-Type', 'application/json');
+    $book = $db->books()->where('id',$id);
+    if($book->fetch()){
+        $result = $book->delete();
+        echo json_encode(array(
+                'status' => (bool)$result,
+                'message' => 'Book deleted successfully'
+            ));
+    }
+    else{
+        echo json_encode(array(
+                'status' => false,
+                'message' => "Book id $id does not exist"
+            ));
+    }
+});
 
-
-
+$app->put('/book/:id',function($id) use($app,$db){
+   $book = $db->books()->where('id',$id);
+   if($book->fetch()){
+        $result = $book->update($_POST);
+        echo json_encode(array(
+                'status' => (bool)$result,
+                'message' => 'Book updated successfully'
+            ));
+    }
+    else{
+        echo json_encode(array(
+                'status' => false,
+                'message' => "Book id $id does not exist"
+            ));
+    }
+});
 
 $app->run();
