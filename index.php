@@ -14,14 +14,30 @@ $dsn = 'mysql:dbname=slimtut;host=127.0.0.1';
 $pdo = new PDO($dsn,'root','root');
 $db  = new NotORM($pdo);
 
-$app = new Slim();
+//$app = new Slim();
+
+$app = new Slim(
+        array(
+            'mode' => 'development',
+            'templates.path' => './templates'
+            )
+    );
 
 $app->get('/', function(){
     echo "Hello world";
 });
+$app->post('/users',function() use($app,$db){
+    $user = array(
+            'name' => $_POST['name'],
+            'email' => $_POST['email'],
+            'age' => $_POST['age'],
+        );
+    $result = $db->users->insert($user);
+    echo json_encode(array('id' => $result['id']));
+});
 
 $app->get('/users',function() use ($app,$db){
-    $app->response()->header('Content-Type', 'application/json');
+   // $app->response()->header('Content-Type', 'application/json');
     $users = array();
     foreach ($db->users as $user) {
         $users[]  = array(
@@ -32,17 +48,15 @@ $app->get('/users',function() use ($app,$db){
             );
     }
     echo json_encode($users);
+    echo "<form action='' method='post'>
+            Name : <input type='text' name='name' /> </br>
+            Email : <input type='text' name='email' /> </br>
+            Age : <input type='text' name='age' /> </ br>
+            <input type='submit' name='submit' value='Submit' >
+        </form>";
 });
 
-$app->post('/users',function() use($app,$db){
-    $user = array(
-            'name' => $_POST['name'],
-            'email' => $_POST['email'],
-            'age' => $_POST['age'],
-        );
-    $result = $db->users->insert($user);
-    print_r($result);
-});
+
 
 
 
