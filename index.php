@@ -56,6 +56,12 @@ $app->get('/books',function() use ($app,$db){
 
 });
 
+$app->get('/book/:id',function($id) use($app,$db){
+    $app->response()->header('Content-Type', 'application/json');
+    $book = $db->books()->where('id',$id);
+    print_r($book->fetch());
+});
+
 $app->delete('/book/:id',function($id) use($app,$db){
     $app->response()->header('Content-Type', 'application/json');
     $book = $db->books()->where('id',$id);

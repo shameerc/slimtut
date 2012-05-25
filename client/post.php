@@ -11,15 +11,25 @@ $client->debug(true);
 // set base URL of Rest server
 $client->setBaseURL('http://localhost/slimtut/index.php');
 
+echo "<pre>";
+if(isset($_GET['id'])){
+    $book = $client->get('/book/' . trim($_GET['id']));
+    print_r($book); exit;
+}
+
 // post book 
 if($_POST){
-
-	$book = array(
+    $book = array(
         'title' => $_POST['title'],
         'author' => $_POST['author'],
         'summary' => $_POST['summary'],
     );
-    $result = $client->post('/book',$book);
+    if(isset($_GET['id'])){
+        $result = $client->put('/book/' . trim($_GET['id']),$book);
+    }
+    else{
+        $result = $client->post('/book',$book);
+    }
     print_r($result);
 }
 ?>
