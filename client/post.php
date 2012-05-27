@@ -9,12 +9,12 @@ $client = new Resty();
 $client->debug(true);
 
 // set base URL of Rest server
-$client->setBaseURL('http://localhost/slimtut/index.php');
+$client->setBaseURL('http://localhost/slimtut');
 
 echo "<pre>";
 if(isset($_GET['id'])){
     $book = $client->get('/book/' . trim($_GET['id']));
-    print_r($book); exit;
+    $book = $book['body'];
 }
 
 // post book 
@@ -25,17 +25,19 @@ if($_POST){
         'summary' => $_POST['summary'],
     );
     if(isset($_GET['id'])){
+    print_r($book);
         $result = $client->put('/book/' . trim($_GET['id']),$book);
+        print_r($result);
     }
     else{
         $result = $client->post('/book',$book);
     }
-    print_r($result);
+    header('Location : /slimtut/client/list.php');
 }
 ?>
 <form action='' method='post'>
-    Title : <input type='text' name='title' /> </br>
-    Author : <input type='text' name='author' /> </br>
-    Summary : <textarea name='summary' /></textarea> </ br>
+    Title : <input type='text' name='title' value="<?php if($book) echo $book->title; ?>"/> </br>
+    Author : <input type='text' name='author'  value="<?php if($book) echo $book->author; ?>"/> </br>
+    Summary : <textarea name='summary' /><?php if($book) echo $book->summary; ?></textarea> </ br>
     <input type='submit' name='submit' value='Submit' >
 </form>

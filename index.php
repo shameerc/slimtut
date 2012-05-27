@@ -1,23 +1,11 @@
 <?php
 
-ini_set('dsiaplay_errors', true);
-error_reporting(E_ALL);
-/**
- * Step 1: Require the Slim PHP 5 Framework
- *
- * If using the default file layout, the `Slim/` directory
- * will already be on your include path. If you move the `Slim/`
- * directory elsewhere, ensure that it is added to your include path
- * or update this file path as needed.
- */
 require 'Slim/Slim.php';
 
 include "NotORM.php";
 $dsn = 'mysql:dbname=library;host=127.0.0.1';
 $pdo = new PDO($dsn,'root','root');
 $db  = new NotORM($pdo);
-
-//$app = new Slim();
 
 $app = new Slim(
         array(
@@ -33,29 +21,24 @@ $app->get('/', function(){
 
 $app->post('/book',function() use($app,$db){
     $app->response()->header('Content-Type', 'application/json');
-    $book = array(
-            'title' => $_POST['title'],
-            'author' => $_POST['author'],
-            'summary' => $_POST['summary'],
-        );
+    $book = $post = $app->request()->post();
     $result = $db->books->insert($book);
     echo json_encode(array('id' => $result['id']));
 });
 
 
-
 $app->get('/books',function() use ($app,$db){
     $app->response()->header('Content-Type', 'application/json');
-    $users = array();
-    foreach ($db->books as $book) {
-        $users[]  = array(
+    $books = array();
+    foreach ($db->books() as $book) {
+        $books[]  = array(
                 'id' => $book['id'],
                 'title' => $book['title'],
                 'author' => $book['author'],
                 'summary' => $book['summary']
             );
     }
-    echo json_encode($users);
+    echo json_encode($books);
 });
 
 $app->get('/book/:id',function($id) use($app,$db){
@@ -90,9 +73,10 @@ $app->delete('/book/:id',function($id) use($app,$db){
 });
 
 $app->put('/book/:id',function($id) use($app,$db){
-   $book = $db->books()->where('id',$id);
-   if($book->fetch()){
-        $result = $book->update($_POST);
+    $book = $db->books()->where('id',$id);
+    if($book->fetch()){ 
+    $post = $app->request()->put();
+        $result = $book->update($post);
         echo json_encode(array(
                 'status' => (bool)$result,
                 'message' => 'Book updated successfully'
