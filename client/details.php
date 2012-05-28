@@ -1,6 +1,4 @@
 <?php
-ini_set('display_errors', true);
-error_reporting(E_ALL);
 //require Resty
 require __DIR__ .'/Resty/Resty.php';
 
@@ -13,7 +11,7 @@ $client->debug(true);
 // set base URL of Rest server
 $client->setBaseURL('http://localhost/slimtut/');
 
-if($_GET['id']){
-	$resp = $client->delete('book/'.$_GET['id']);
-	echo $resp['body']->message;
+if(isset($_GET['id'])){
+    $book = $client->get('book/' . trim($_GET['id']));
+    print_r($book['body']);
 }

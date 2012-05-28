@@ -9,8 +9,9 @@ $client = new Resty();
 $client->debug(true);
 
 // set base URL of Rest server
-$client->setBaseURL('http://localhost/slimtut/index.php');
+$client->setBaseURL('http://localhost/slimtut/');
 
 // get books
-$resp = $client->get('/books');
+$resp = $client->get('books');
+echo "<pre>";
 print_r($resp['body']);

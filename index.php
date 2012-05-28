@@ -21,9 +21,14 @@ $app->get('/', function(){
 
 $app->post('/book',function() use($app,$db){
     $app->response()->header('Content-Type', 'application/json');
-    $book = $post = $app->request()->post();
-    $result = $db->books->insert($book);
-    echo json_encode(array('id' => $result['id']));
+    $book = $app->request()->post();
+    if($post){
+        $result = $db->books->insert($book);
+        echo json_encode(array('id' => $result['id']));
+    }
+    else{
+        echo json_encode(array('status' => false, 'message' => 'Error'));
+    }
 });
 
 
@@ -52,6 +57,12 @@ $app->get('/book/:id',function($id) use($app,$db){
                 'summary' => $data['summary']
             ));
     }
+    else{
+        echo json_encode(array(
+                'status' => false,
+                'message' => "Book id $id does not exist"
+            ));
+    }
 });
 
 $app->delete('/book/:id',function($id) use($app,$db){
@@ -60,7 +71,7 @@ $app->delete('/book/:id',function($id) use($app,$db){
     if($book->fetch()){
         $result = $book->delete();
         echo json_encode(array(
-                'status' => (bool)$result,
+                'status' => true,
                 'message' => 'Book deleted successfully'
             ));
     }
