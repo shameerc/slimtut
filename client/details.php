@@ -13,5 +13,6 @@ $client->setBaseURL('http://localhost/slimtut/');
 
 if(isset($_GET['id'])){
     $book = $client->get('book/' . trim($_GET['id']));
+    echo "<pre>";
     print_r($book['body']);
 }
